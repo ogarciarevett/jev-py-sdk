@@ -103,8 +103,9 @@ uv run pytest --cov      # offline: httpx.MockTransport only
 uv run ruff check . && uv run black --check . && uv run mypy src tests
 ```
 
-See [docs/parity.md](docs/parity.md) for what the TypeScript SDK has that this port does not, and
-[PROVENANCE.md](PROVENANCE.md) for where the code came from.
+See [docs/parity.md](docs/parity.md) for what the TypeScript SDK has that this port does not,
+[PROVENANCE.md](PROVENANCE.md) for where the code came from, and
+[docs/versioning.md](docs/versioning.md) for the SemVer policy, what counts as public API, and how to release.
 
 ## License
 
