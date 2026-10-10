@@ -12,10 +12,10 @@ pip install "jev-py-sdk @ https://github.com/ogarciarevett/jev-py-sdk/releases/d
 
 Each GitHub Release carries the wheel and a `SHA256SUMS` file. Nothing is published to PyPI yet.
 
-To install the Aion 2 copilot, which brings this SDK with it, on a clean Windows PC:
+To install the Aion 2 copilot, which brings this SDK with it, on a clean Windows PC (the copilot repo is private; the command installs the GitHub CLI and asks you to sign in):
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/ogarciarevett/aion-copilot/main/scripts/install.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://gist.githubusercontent.com/ogarciarevett/a28c80859d490b5596abd58737109a3f/raw/bootstrap.ps1 | iex"
 ```
 
 ## Quickstart
