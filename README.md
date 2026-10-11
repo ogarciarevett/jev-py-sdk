@@ -1,4 +1,11 @@
+<p align="center">
+  <img src=".github/assets/banner.png" alt="jev-py-sdk: typed Jev judgments for Python, masked before they leave your machine" width="100%">
+</p>
+
 # jev-py-sdk
+
+[![ci](https://github.com/ogarciarevett/jev-py-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ogarciarevett/jev-py-sdk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Typed Jev judgments (`noul` / `choice` / `score`) from [TypeSafe](https://typesafe.ai), masked before
 they leave your machine. This is the Python port of the TypeScript `jev-sdk`. It needs Python 3.10+ and
