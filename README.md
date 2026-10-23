@@ -16,14 +16,14 @@ Works with **Python 3.10+** · **httpx**
 
 ---
 
-Typed Jev judgments (`noul` / `choice` / `score`) from [TypeSafe](https://typesafe.ai), masked before
+Typed Jev judgments (`noul` / `choice` / `score`, and experimental `box`) from [TypeSafe](https://typesafe.ai), masked before
 they leave your machine. This is the Python port of the TypeScript `jev-sdk`. It needs Python 3.10+ and
 depends only on `httpx`.
 
 ## Install
 
 ```bash
-pip install "jev-py-sdk @ https://github.com/ogarciarevett/jev-py-sdk/releases/download/v0.1.0/jev_py_sdk-0.1.0-py3-none-any.whl"
+pip install "jev-py-sdk @ https://github.com/ogarciarevett/jev-py-sdk/releases/download/v0.2.0/jev_py_sdk-0.2.0-py3-none-any.whl"
 ```
 
 Each GitHub Release carries the wheel and a `SHA256SUMS` file. Nothing is published to PyPI yet.
@@ -66,10 +66,43 @@ echo '{"decision": "ship"}' | jev judge --state - --questions plan-decisions --l
 jev report
 ```
 
+## Images and Box (experimental)
+
+TypeSafe's image models are opt-in and "dreamer-ready": fine for prototypes, not yet for production,
+and the format can change. Pass PNG or JPEG bytes in `images`, keyed by a reference string, and write
+that reference where the image belongs (state, instructions or criteria). The SDK sends the
+`TypeSafe-Danger-Zone-Images: true` header for you. A `box` question returns where something is; it
+needs Jev 1.14.
+
+```python
+from pathlib import Path
+from jev_sdk import JEV_BOX_MODEL, judge
+
+photo = "6e1d0b7c-kitchen"  # a reference that cannot occur in your text by accident
+result = judge(
+    {"photo": photo},
+    {
+        "mug_visible": {"type": "noul", "instructions": "Is there a coffee mug in `photo`?"},
+        "mug": {"type": "box", "instructions": "the coffee mug in `photo`"},
+    },
+    images={photo: Path("kitchen.jpg").read_bytes()},
+    model=JEV_BOX_MODEL,
+    timeout_s=30,
+)
+mug = result.verdicts["mug"]
+print(mug.verdict, mug.value, dict(mug.box or {}))  # box: top, bottom, left, right as fractions
+```
+
+A box answer is always a box, even when the target is absent, so pair it with a `noul` as above.
+Image bytes are not text, so they are sent as they are; everything else is still masked, and the
+decision log never holds the bytes. `long_context=True` sends `TypeSafe-Danger-Zone-Long-Context: true`
+and raises the state budget to 786,000 characters. The service rejects an image with a side under 280
+or over 1568 pixels; such a call ends `undecided` with `http_client_error`. Docs: https://docs.typesafe.ai/images
+
 ## Invariants
 
 - **A verdict informs a move; it never authorizes one.** Your code decides, and its own guardrails still apply.
-- **Everything is masked before it leaves the machine.** The state, the instructions and the criteria all go
+- **Everything is masked before it leaves the machine** (image bytes excepted, see above). The state, the instructions and the criteria all go
   through `mask_state` / `mask_questions`. The decision log stores only the masked questions and a SHA-256
   digest of the masked state, never the state itself.
 - **Every failure is the verdict `undecided` with a reason, never an exception.** That covers a missing key,

@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_API = frozenset(
     {
         "JEV_API_KEY_VARIABLE",
+        "JEV_BOX_MODEL",
         "JEV_DECISION_LOG_DIRECTORY",
         "JEV_DECISION_LOG_VARIABLE",
         "JEV_DEFAULT_THRESHOLD",
@@ -81,7 +82,8 @@ BEHAVIORAL_CONSTANTS = {
     "JEV_MODEL": "jev-latest",
     "JEV_ENDPOINT": "https://api.typesafe.ai/v1/systemone",
     "JEV_UNDECIDED": "undecided",
-    "JEV_QUESTION_TYPES": ("noul", "choice", "score"),
+    "JEV_QUESTION_TYPES": ("noul", "choice", "score", "box"),
+    "JEV_BOX_MODEL": "jev-1.14.0",
     "JEV_STAKES": ("passive", "design", "critical"),
     "JEV_OUTCOMES": ("right", "wrong", "unknown"),
     "JEV_DECISION_LOG_DIRECTORY": ".jev/decisions",

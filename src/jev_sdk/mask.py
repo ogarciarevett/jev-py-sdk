@@ -24,7 +24,7 @@ from typing import TypeAlias, Union
 JsonValue: TypeAlias = Union[None, bool, int, float, str, "list[JsonValue]", "dict[str, JsonValue]"]
 
 JEV_REDACTION = "[redacted]"
-JEV_QUESTION_TYPES = ("noul", "choice", "score")
+JEV_QUESTION_TYPES = ("noul", "choice", "score", "box")
 JEV_STAKES = ("passive", "design", "critical")
 
 # ECMAScript WhiteSpace + LineTerminator, which is what `\s` and `String.prototype.trim` use.
