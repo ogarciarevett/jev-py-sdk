@@ -26,7 +26,8 @@ Support for the experimental TypeSafe image models and Jev 1.14. Images and Box 
   image or a box question.
 - `long_context=True` sends `TypeSafe-Danger-Zone-Long-Context: true` and raises the state budget
   from 96,000 to 786,000 characters (262k tokens).
-- `decision_line(..., images=...)` checks the references of a call that sent images.
+- `decision_line(..., images=..., long_context=...)` checks the references of a call that sent images
+  and accepts the larger state of a long context call.
 
 ### Changed
 

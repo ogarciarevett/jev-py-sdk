@@ -146,3 +146,12 @@ def test_the_decision_line_never_holds_the_image_bytes() -> None:
     line = decision_line({"photo": PHOTO}, BOX_QUESTIONS, result, "2026-10-23T00:00:00.000Z", images={PHOTO: PNG})
     assert base64.b64encode(PNG).decode() not in line
     assert json.loads(line)["verdicts"]["mug"]["box"] == EDGES
+
+
+def test_a_long_context_call_can_be_logged() -> None:
+    questions = {"q": {"type": "noul", "instructions": "Is it?"}}
+    big = "word " * 30_000
+    capture = Capture({"q": {"type": "noul", "noul": 0.9}})
+    result = judge(big, questions, api_key=KEY, long_context=True, transport=capture.transport())
+    line = decision_line(big, questions, result, "2026-10-23T00:00:00.000Z", long_context=True)
+    assert json.loads(line)["stateCharacters"] == len(big.strip())
