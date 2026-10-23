@@ -61,9 +61,13 @@ def decision_line(
     at: str,
     *,
     thresholds: Mapping[str, float] | None = None,
+    images: Mapping[str, bytes] | None = None,
 ) -> str:
-    """One call: the masked state digest, the masked questions, the bars and the verdicts."""
-    masked = mask_request(state, questions, thresholds)
+    """One call: the masked state digest, the masked questions, the bars and the verdicts.
+
+    Pass the call's `images` so their references are checked; the image bytes are never logged.
+    """
+    masked = mask_request(state, questions, thresholds, images=images)
     written = masked.written_state()
     state_digest = masked_digest(written)
     stakes = {question_id: question["stakes"] for question_id, question in questions.items() if "stakes" in question}

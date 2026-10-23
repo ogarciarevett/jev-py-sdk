@@ -1,4 +1,4 @@
-"""Jev: typed judgments (noul / choice / score) from TypeSafe, ported from the TypeScript jev-sdk.
+"""Jev: typed judgments (noul / choice / score / box) from TypeSafe, ported from the TypeScript jev-sdk.
 
 A verdict informs a move; it never authorizes one. Everything is masked before it leaves the
 machine, and every failure is the verdict `undecided` with a reason, never an exception.
@@ -8,6 +8,7 @@ from importlib.metadata import PackageNotFoundError, version
 
 from jev_sdk.judge import (
     JEV_API_KEY_VARIABLE,
+    JEV_BOX_MODEL,
     JEV_DEFAULT_THRESHOLD,
     JEV_DEFAULT_TIMEOUT_S,
     JEV_ENDPOINT,
@@ -58,6 +59,7 @@ from jev_sdk.mask import (
 
 __all__ = [
     "JEV_API_KEY_VARIABLE",
+    "JEV_BOX_MODEL",
     "JEV_DECISION_LOG_DIRECTORY",
     "JEV_DECISION_LOG_VARIABLE",
     "JEV_DEFAULT_THRESHOLD",

@@ -1,7 +1,7 @@
 [project]
 name = "jev-py-sdk"
-version = "0.1.0"
-description = "Typed Jev judgments (noul / choice / score) from TypeSafe, masked before they leave the machine"
+version = "0.2.0"
+description = "Typed Jev judgments (noul / choice / score / box) from TypeSafe, masked before they leave the machine"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

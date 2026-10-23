@@ -12,6 +12,7 @@ phase of a request, not the request as a whole.
 
 from __future__ import annotations
 
+import base64
 import json
 import math
 import os
@@ -40,6 +41,8 @@ from jev_sdk.mask import (
 
 JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 JEV_MODEL = "jev-latest"
+# Box questions need Jev 1.14 or later; send this (or `jev-preview`) as the model for them.
+JEV_BOX_MODEL = "jev-1.14.0"
 JEV_API_KEY_VARIABLE = "TYPESAFE_API_KEY"
 JEV_DEFAULT_THRESHOLD = 0.8
 # A floor at 0.6 catches genuine uncertainty; a decision that costs real money waits for 0.9.
@@ -49,6 +52,12 @@ JEV_DEFAULT_TIMEOUT_MS = 10_000
 JEV_MAX_TIMEOUT_MS = 120_000
 # The documented budget is 32k tokens for the state plus the longest question.
 JEV_MAX_STATE_CHARACTERS = 96_000
+# The long context header raises the budget to 262k tokens, at the same three characters a token.
+JEV_LONG_CONTEXT_MAX_STATE_CHARACTERS = 786_000
+# The service refuses a body over 32 MiB. Only the image data is counted against it here.
+JEV_MAX_IMAGE_BYTES = 32 * 1024 * 1024
+JEV_IMAGES_HEADER = "typesafe-danger-zone-images"
+JEV_LONG_CONTEXT_HEADER = "typesafe-danger-zone-long-context"
 JEV_MAX_RATE_LIMIT_RETRIES = 2
 # The least time worth spending on another attempt once a rate limit wait has been paid for.
 JEV_MIN_ATTEMPT_MS = 1_000
@@ -92,6 +101,8 @@ class Verdict:
     probabilities: Mapping[str, float] | None = None
     # Top minus second; for a noul, the distance from the coin flip.
     margin: float | None = None
+    # A box answer's edges (`top`, `bottom`, `left`, `right`) as fractions of the image size.
+    box: Mapping[str, float] | None = None
 
     @property
     def decided(self) -> bool:
@@ -111,6 +122,7 @@ class Verdict:
             "leaning": self.leaning,
             "probabilities": None if self.probabilities is None else dict(self.probabilities),
             "margin": self.margin,
+            "box": None if self.box is None else dict(self.box),
         }
         return {**written, **{key: value for key, value in optional.items() if value is not None}}
 
@@ -139,6 +151,25 @@ class MaskedRequest:
     questions: Mapping[str, Mapping[str, JsonValue]]
     thresholds: Mapping[str, float]
     timeout_ms: int
+    # Reference -> `{"type": "image", "format": ..., "data_base64": ...}`. Image bytes are not masked.
+    assets: Mapping[str, Mapping[str, str]] = MappingProxyType({})
+    model: str = JEV_MODEL
+    long_context: bool = False
+
+    def headers(self) -> dict[str, str]:
+        """The danger zone headers this request needs: images for an asset or a box, long context on request."""
+        headers: dict[str, str] = {}
+        if self.assets or any(question.get("type") == "box" for question in self.questions.values()):
+            headers[JEV_IMAGES_HEADER] = "true"
+        if self.long_context:
+            headers[JEV_LONG_CONTEXT_HEADER] = "true"
+        return headers
+
+    def body(self) -> dict[str, object]:
+        written: dict[str, object] = {"state": self.state, "model": self.model, "questions": dict(self.questions)}
+        if self.assets:
+            written["assets"] = {reference: dict(asset) for reference, asset in self.assets.items()}
+        return written
 
     def written_state(self) -> str:
         return self.state if isinstance(self.state, str) else js_json_dumps(self.state)
@@ -189,6 +220,8 @@ def _validate_criteria(question_id: str, question: Mapping[str, object]) -> None
         raise JevUsageError(f"question {question_id}: a choice needs at least two criteria options")
     if question_type == "score" and (not isinstance(criteria, list | tuple) or not 2 <= len(criteria) <= 10):
         raise JevUsageError(f"question {question_id}: a score needs between two and ten criteria levels")
+    if question_type == "box" and "criteria" in question:
+        raise JevUsageError(f"question {question_id}: a box takes no criteria")
 
 
 def _validate_question(question_id: str, question: object) -> None:
@@ -229,13 +262,50 @@ def _timeout_ms(timeout_s: object) -> int:
     return _js_round(float(timeout_s) * 1000)  # type: ignore[arg-type]
 
 
+def _image_format(data: object) -> str | None:
+    if not isinstance(data, bytes | bytearray):
+        return None
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return "jpg"
+    return None
+
+
+def _image_assets(images: Mapping[str, bytes], written: str) -> dict[str, dict[str, str]]:
+    """One asset per image. `written` is the masked state and questions, where each reference must appear."""
+    assets: dict[str, dict[str, str]] = {}
+    for reference, data in images.items():
+        if not isinstance(reference, str) or not reference.strip(JS_WHITESPACE):
+            raise JevUsageError("an image reference must be a non-empty string")
+        image_format = _image_format(data)
+        if image_format is None:
+            raise JevUsageError(f"image {reference}: only PNG and JPEG bytes are accepted")
+        # Masking can rewrite a reference that looks like a credential or an id, so check what is sent.
+        if reference not in written:
+            raise JevUsageError(f"image {reference}: the reference does not appear in the masked state or questions")
+        encoded = base64.b64encode(bytes(data)).decode("ascii")
+        assets[reference] = {"type": "image", "format": image_format, "data_base64": encoded}
+    if sum(len(asset["data_base64"]) for asset in assets.values()) > JEV_MAX_IMAGE_BYTES:
+        raise JevUsageError(f"images are larger than {JEV_MAX_IMAGE_BYTES} bytes once encoded")
+    return assets
+
+
 def mask_request(
     state: object,
     questions: Questions,
     thresholds: Mapping[str, float] | None = None,
     timeout_ms: int = JEV_DEFAULT_TIMEOUT_MS,
+    *,
+    images: Mapping[str, bytes] | None = None,
+    model: str = JEV_MODEL,
+    long_context: bool = False,
 ) -> MaskedRequest:
-    """Validate the request and mask everything in it. Raises `JevUsageError` for a caller mistake."""
+    """Validate the request and mask everything in it. Raises `JevUsageError` for a caller mistake.
+
+    `images` maps a reference string to PNG or JPEG bytes. Write the reference in the state, the
+    instructions or the criteria where the image belongs; the service puts the image in its place.
+    """
     if not isinstance(questions, Mapping) or len(questions) == 0:
         raise JevUsageError("at least one question is required")
     for question_id, question in questions.items():
@@ -243,6 +313,8 @@ def mask_request(
 
     if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 0 < timeout_ms <= JEV_MAX_TIMEOUT_MS:
         raise JevUsageError(f"timeout must be between 1 ms and {JEV_MAX_TIMEOUT_MS} ms")
+    if not isinstance(model, str) or not model.strip(JS_WHITESPACE):
+        raise JevUsageError("model must be a non-empty string")
 
     try:
         masked_state = mask_state(state)
@@ -251,8 +323,11 @@ def mask_request(
     written = masked_state if isinstance(masked_state, str) else js_json_dumps(masked_state)
     if len(written.strip(JS_WHITESPACE)) == 0:
         raise JevUsageError("state is empty")
-    if utf16_length(written) > JEV_MAX_STATE_CHARACTERS:
-        raise JevUsageError(f"state is larger than {JEV_MAX_STATE_CHARACTERS} characters")
+    limit = JEV_LONG_CONTEXT_MAX_STATE_CHARACTERS if long_context else JEV_MAX_STATE_CHARACTERS
+    if utf16_length(written) > limit:
+        raise JevUsageError(f"state is larger than {limit} characters")
+    masked_questions = mask_questions(questions)
+    assets = _image_assets(images or {}, js_json_dumps({"state": masked_state, "questions": masked_questions}))
 
     overrides = thresholds or {}
     bars = {
@@ -261,20 +336,26 @@ def mask_request(
     }
     return MaskedRequest(
         state=masked_state,
-        questions=MappingProxyType(mask_questions(questions)),
+        questions=MappingProxyType(masked_questions),
         thresholds=MappingProxyType(bars),
         timeout_ms=timeout_ms,
+        assets=MappingProxyType(assets),
+        model=model,
+        long_context=bool(long_context),
     )
 
 
 # --- transport -----------------------------------------------------------------------------------
 
 
-def _post(body: bytes, timeout_s: float, api_key: str, transport: httpx.BaseTransport | None) -> _Reply:
+def _post(
+    body: bytes, timeout_s: float, api_key: str, transport: httpx.BaseTransport | None, extra: Mapping[str, str]
+) -> _Reply:
     headers = {
         "authorization": f"Bearer {api_key}",
         "content-type": "application/json",
         "accept": "application/json",
+        **extra,
     }
     # Redirects are not followed: the bearer token goes to the documented endpoint and nowhere else.
     with httpx.Client(transport=transport, timeout=timeout_s, follow_redirects=False) as client:
@@ -283,7 +364,7 @@ def _post(body: bytes, timeout_s: float, api_key: str, transport: httpx.BaseTran
 
 
 def _reply_within(
-    body: bytes, timeout_ms: float, api_key: str, transport: httpx.BaseTransport | None
+    body: bytes, timeout_ms: float, api_key: str, transport: httpx.BaseTransport | None, extra: Mapping[str, str]
 ) -> _Reply | _Failed:
     """One attempt that the caller abandons at `timeout_ms`, whatever the socket is doing."""
     timeout_s = timeout_ms / 1000
@@ -291,7 +372,7 @@ def _reply_within(
 
     def run() -> None:
         try:
-            replies.put(_post(body, timeout_s, api_key, transport))
+            replies.put(_post(body, timeout_s, api_key, transport, extra))
         except Exception as error:  # handed to the caller below and mapped to a reason
             replies.put(error)
 
@@ -340,9 +421,9 @@ def _parsed_body(content: bytes) -> object:
 
 
 def _attempt(
-    body: bytes, timeout_ms: float, api_key: str, transport: httpx.BaseTransport | None
+    body: bytes, timeout_ms: float, api_key: str, transport: httpx.BaseTransport | None, extra: Mapping[str, str]
 ) -> _Answered | _Failed | _RateLimited:
-    reply = _reply_within(body, timeout_ms, api_key, transport)
+    reply = _reply_within(body, timeout_ms, api_key, transport, extra)
     if isinstance(reply, _Failed):
         return reply
     if reply.status == 429:
@@ -365,12 +446,12 @@ def _send(
     sleep: Callable[[float], None],
     deadline_ms: float,
 ) -> _Answered | _Failed:
-    body = js_json_dumps({"state": request.state, "model": JEV_MODEL, "questions": request.questions})
-    encoded = body.encode("utf-8")
+    encoded = js_json_dumps(request.body()).encode("utf-8")
+    extra = request.headers()
     # Only a rate limit is retried, and only twice. Nothing else is retried at all.
     for round_index in range(JEV_MAX_RATE_LIMIT_RETRIES + 1):
         remaining = max(deadline_ms - now_ms(), 1)
-        outcome = _attempt(encoded, remaining, api_key, transport)
+        outcome = _attempt(encoded, remaining, api_key, transport, extra)
         if not isinstance(outcome, _RateLimited):
             return outcome
         if round_index == JEV_MAX_RATE_LIMIT_RETRIES:
@@ -417,6 +498,7 @@ class _Detail:
     leaning: str | None = None
     probabilities: Mapping[str, float] | None = None
     margin: float | None = None
+    box: Mapping[str, float] | None = None
 
 
 _NO_DETAIL = _Detail()
@@ -441,6 +523,7 @@ def _undecided(
         leaning=detail.leaning,
         probabilities=detail.probabilities,
         margin=detail.margin,
+        box=detail.box,
     )
 
 
@@ -454,6 +537,7 @@ def _decided(question_type: str, verdict: str, value: float, threshold: float, d
         leaning=detail.leaning,
         probabilities=detail.probabilities,
         margin=detail.margin,
+        box=detail.box,
     )
 
 
@@ -500,6 +584,22 @@ def _score_verdict(answer: Mapping[str, object], threshold: float) -> Verdict:
     return _decided("score", written, confidence, threshold, detail)
 
 
+_BOX_EDGES = ("top", "bottom", "left", "right")
+
+
+def _box_verdict(answer: Mapping[str, object], threshold: float) -> Verdict:
+    edges, confidence = answer.get("box"), answer.get("confidence")
+    if not isinstance(edges, dict) or not all(_is_fraction(edges.get(edge)) for edge in _BOX_EDGES):
+        return _undecided("box", threshold, "response_schema_mismatch")
+    if not _is_fraction(confidence) or edges["left"] >= edges["right"] or edges["top"] >= edges["bottom"]:
+        return _undecided("box", threshold, "response_schema_mismatch")
+    assert isinstance(confidence, int | float)
+    detail = _Detail(leaning="box", box=MappingProxyType({edge: edges[edge] for edge in _BOX_EDGES}))
+    if confidence < threshold:
+        return _undecided("box", threshold, "below_threshold", confidence, detail)
+    return _decided("box", "box", confidence, threshold, detail)
+
+
 def _verdict_for(question: Mapping[str, object], threshold: float, answer: object) -> Verdict:
     question_type = str(question.get("type"))
     if not isinstance(answer, dict):
@@ -512,6 +612,8 @@ def _verdict_for(question: Mapping[str, object], threshold: float, answer: objec
         return _choice_verdict(answer, question, threshold)
     if question_type == "score":
         return _score_verdict(answer, threshold)
+    if question_type == "box":
+        return _box_verdict(answer, threshold)
     return _undecided(question_type, threshold, "response_schema_mismatch")
 
 
@@ -534,6 +636,9 @@ def judge(
     api_key: str | None = None,
     timeout_s: float = JEV_DEFAULT_TIMEOUT_S,
     thresholds: Mapping[str, float] | None = None,
+    images: Mapping[str, bytes] | None = None,
+    model: str = JEV_MODEL,
+    long_context: bool = False,
     transport: httpx.BaseTransport | None = None,
     now: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
@@ -544,8 +649,13 @@ def judge(
     is sent. `now` returns seconds and `sleep` takes seconds; both exist so tests can move a clock.
     Raises `JevUsageError` for a malformed request; every other failure is `undecided`.
 
+    `images` (see `mask_request`) and box questions send `TypeSafe-Danger-Zone-Images: true`; a box
+    needs `model=JEV_BOX_MODEL` or `jev-preview`. `long_context` sends
+    `TypeSafe-Danger-Zone-Long-Context: true` and raises the state budget. Both are experimental.
     """
-    request = mask_request(state, questions, thresholds, _timeout_ms(timeout_s))
+    request = mask_request(
+        state, questions, thresholds, _timeout_ms(timeout_s), images=images, model=model, long_context=long_context
+    )
     key = (os.environ.get(JEV_API_KEY_VARIABLE, "") if api_key is None else api_key).strip()
     if not key:
         return JudgeResult("", 0, _all_undecided(request, "typesafe_api_key_missing"))
