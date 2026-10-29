@@ -16,7 +16,7 @@ jobs:
         with:
           version: "0.13.5"
       - run: uv sync --locked --python 3.12
-      - run: uv run pytest
+      - run: uv run --locked python scripts/check.py
       - name: Check the tag matches the package version
         run: |
           version=$(uv run python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")

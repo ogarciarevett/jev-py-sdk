@@ -28,8 +28,8 @@ jev = "jev_sdk.__main__:main"
 dev = [
   "pytest>=8",
   "pytest-cov>=5",
-  "ruff>=0.6",
-  "black>=24.8",
+  "ruff==0.14.3",
+  "black==26.10.1",
   "mypy>=1.11",
 ]
 
@@ -64,6 +64,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 [tool.black]
 line-length = 120
 target-version = ["py310"]
+required-version = "26.10.1"
 
 [tool.mypy]
 python_version = "3.10"
