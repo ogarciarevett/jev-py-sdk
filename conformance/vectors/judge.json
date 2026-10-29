@@ -1,0 +1,1757 @@
+{
+ "version": 1,
+ "note": "Synthetic data only. Each case gives the judge inputs, the one scripted reply, and the expected outgoing body and verdicts. apiKey defaults to the top-level fixture key; an empty apiKey means no key.",
+ "apiKey": "fixture-key-value-0001",
+ "cases": [
+  {
+   "name": "masked request to the documented endpoint",
+   "state": "worker Bearer fixture-token-value-0001 refused",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does operator.fixture@example.com have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8
+    },
+    "timeoutMs": 5000
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.9}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.9,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.8
+     }
+    },
+    "body": "{\"state\":\"worker [redacted] refused\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does [redacted] have to act?\"}}}"
+   }
+  },
+  {
+   "name": "structured credentials never leave",
+   "state": {
+    "nested": {
+     "apiKey": "synthetic-credential-value"
+    },
+    "items": [
+     {
+      "password": "synthetic-credential-value"
+     },
+     {
+      "refreshToken": "synthetic-credential-value"
+     }
+    ]
+   },
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": {
+      "context": [
+       {
+        "authorization": "synthetic-credential-value"
+       }
+      ]
+     },
+     "criteria": {
+      "true": {
+       "privateKey": "synthetic-credential-value"
+      },
+      "false": "no action"
+     }
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.9}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.9,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.8
+     }
+    },
+    "body": "{\"state\":{\"nested\":{\"apiKey\":\"[redacted]\"},\"items\":[{\"password\":\"[redacted]\"},{\"refreshToken\":\"[redacted]\"}]},\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":{\"context\":[{\"authorization\":\"[redacted]\"}]},\"criteria\":{\"true\":{\"privateKey\":\"[redacted]\"},\"false\":\"no action\"}}}}"
+   }
+  },
+  {
+   "name": "compact body in upstream key order",
+   "state": {
+    "cash": 400,
+    "ratio": 1.0
+   },
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.9}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.9,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.8
+     }
+    },
+    "body": "{\"state\":{\"cash\":400,\"ratio\":1},\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "javascript key order inside the state",
+   "state": {
+    "b": 1,
+    "10": "x",
+    "a": [
+     true,
+     null,
+     0.5
+    ],
+    "2": 2.5
+   },
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.9}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.9,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.8
+     }
+    },
+    "body": "{\"state\":{\"2\":2.5,\"10\":\"x\",\"b\":1,\"a\":[true,null,0.5]},\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul 0.96 decides",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.96}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.96,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.92
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul 0.8 decides",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.8}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.8,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.6
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul 0.04 decides",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.04}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "no",
+      "value": 0.04,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "no",
+      "margin": 0.92
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul 0.2 decides",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.2}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "no",
+      "value": 0.2,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "no",
+      "margin": 0.6
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul inside the uncertain band is undecided",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.55}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0.55,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "below_threshold",
+      "leaning": "yes",
+      "margin": 0.1
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul 0.72 leans yes but stays undecided",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.72}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0.72,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "below_threshold",
+      "leaning": "yes",
+      "margin": 0.44
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "confident choice",
+   "state": "the api returned 500 for every order",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     }
+    }
+   },
+   "options": {
+    "thresholds": {
+     "failure_layer": 0.7
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"probabilities\": {\"frontend\": 0.05, \"api\": 0.85, \"data\": 0.1, \"blockchain\": 0}, \"confidence\": 0.82}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "api",
+      "value": 0.82,
+      "valueKind": "confidence",
+      "threshold": 0.7,
+      "leaning": "api",
+      "probabilities": {
+       "frontend": 0.05,
+       "api": 0.85,
+       "data": 0.1,
+       "blockchain": 0
+      },
+      "margin": 0.75
+     }
+    },
+    "body": "{\"state\":\"the api returned 500 for every order\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "unconfident choice",
+   "state": "the api returned 500 for every order",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     }
+    }
+   },
+   "options": {
+    "thresholds": {
+     "failure_layer": 0.7
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"probabilities\": {\"frontend\": 0.3, \"api\": 0.35, \"data\": 0.35, \"blockchain\": 0}, \"confidence\": 0.4}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "undecided",
+      "value": 0.4,
+      "valueKind": "confidence",
+      "threshold": 0.7,
+      "reason": "below_threshold",
+      "leaning": "api",
+      "probabilities": {
+       "frontend": 0.3,
+       "api": 0.35,
+       "data": 0.35,
+       "blockchain": 0
+      },
+      "margin": 0.0
+     }
+    },
+    "body": "{\"state\":\"the api returned 500 for every order\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "choice outside the criteria",
+   "state": "the api returned 500",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     }
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"engine\", \"probabilities\": {}, \"confidence\": 0.99}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the api returned 500\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "choice without a distribution",
+   "state": "the api returned 500",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     }
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"confidence\": 0.92}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "api",
+      "value": 0.92,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "leaning": "api"
+     }
+    },
+    "body": "{\"state\":\"the api returned 500\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "passive stakes set the bar",
+   "state": "the api returned 500",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     },
+     "stakes": "passive"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"probabilities\": {\"frontend\": 0.1, \"api\": 0.72, \"data\": 0.14, \"blockchain\": 0.04}, \"confidence\": 0.64}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "api",
+      "value": 0.64,
+      "valueKind": "confidence",
+      "threshold": 0.6,
+      "leaning": "api",
+      "probabilities": {
+       "frontend": 0.1,
+       "api": 0.72,
+       "data": 0.14,
+       "blockchain": 0.04
+      },
+      "margin": 0.58
+     }
+    },
+    "body": "{\"state\":\"the api returned 500\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "design stakes set the bar",
+   "state": "the api returned 500",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     },
+     "stakes": "design"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"probabilities\": {\"frontend\": 0.1, \"api\": 0.72, \"data\": 0.14, \"blockchain\": 0.04}, \"confidence\": 0.64}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "undecided",
+      "value": 0.64,
+      "valueKind": "confidence",
+      "threshold": 0.75,
+      "reason": "below_threshold",
+      "leaning": "api",
+      "probabilities": {
+       "frontend": 0.1,
+       "api": 0.72,
+       "data": 0.14,
+       "blockchain": 0.04
+      },
+      "margin": 0.58
+     }
+    },
+    "body": "{\"state\":\"the api returned 500\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "critical stakes set the bar",
+   "state": "the api returned 500",
+   "questions": {
+    "failure_layer": {
+     "type": "choice",
+     "instructions": "Which layer failed?",
+     "criteria": {
+      "frontend": null,
+      "api": null,
+      "data": null,
+      "blockchain": null
+     },
+     "stakes": "critical"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"failure_layer\": {\"type\": \"choice\", \"choice\": \"api\", \"probabilities\": {\"frontend\": 0.1, \"api\": 0.72, \"data\": 0.14, \"blockchain\": 0.04}, \"confidence\": 0.64}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "failure_layer": {
+      "type": "choice",
+      "verdict": "undecided",
+      "value": 0.64,
+      "valueKind": "confidence",
+      "threshold": 0.9,
+      "reason": "below_threshold",
+      "leaning": "api",
+      "probabilities": {
+       "frontend": 0.1,
+       "api": 0.72,
+       "data": 0.14,
+       "blockchain": 0.04
+      },
+      "margin": 0.58
+     }
+    },
+    "body": "{\"state\":\"the api returned 500\",\"model\":\"jev-latest\",\"questions\":{\"failure_layer\":{\"type\":\"choice\",\"instructions\":\"Which layer failed?\",\"criteria\":{\"frontend\":null,\"api\":null,\"data\":null,\"blockchain\":null}}}}"
+   }
+  },
+  {
+   "name": "explicit threshold beats stakes",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?",
+     "stakes": "passive"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.92
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.95}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.95,
+      "valueKind": "noul-probability",
+      "threshold": 0.92,
+      "leaning": "yes",
+      "margin": 0.9
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "confident score",
+   "state": "three retries, still failing",
+   "questions": {
+    "task_risk": {
+     "type": "score",
+     "instructions": "How risky?",
+     "criteria": [
+      "low",
+      "high"
+     ]
+    }
+   },
+   "options": {
+    "thresholds": {
+     "task_risk": 0.6
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"task_risk\": {\"type\": \"score\", \"score\": 1.25, \"legend\": {\"0\": \"low\", \"1\": \"high\"}, \"probabilities\": {\"0\": 0.25, \"1\": 0.75}, \"confidence\": 0.75}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "task_risk": {
+      "type": "score",
+      "verdict": "1.25",
+      "value": 0.75,
+      "valueKind": "confidence",
+      "threshold": 0.6,
+      "leaning": "1.25",
+      "probabilities": {
+       "0": 0.25,
+       "1": 0.75
+      },
+      "margin": 0.5
+     }
+    },
+    "body": "{\"state\":\"three retries, still failing\",\"model\":\"jev-latest\",\"questions\":{\"task_risk\":{\"type\":\"score\",\"instructions\":\"How risky?\",\"criteria\":[\"low\",\"high\"]}}}"
+   }
+  },
+  {
+   "name": "integral score reads like upstream",
+   "state": "state",
+   "questions": {
+    "task_risk": {
+     "type": "score",
+     "instructions": "How risky?",
+     "criteria": [
+      "low",
+      "high"
+     ]
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"task_risk\": {\"type\": \"score\", \"score\": 2.0, \"confidence\": 0.9}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "task_risk": {
+      "type": "score",
+      "verdict": "2",
+      "value": 0.9,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "leaning": "2"
+     }
+    },
+    "body": "{\"state\":\"state\",\"model\":\"jev-latest\",\"questions\":{\"task_risk\":{\"type\":\"score\",\"instructions\":\"How risky?\",\"criteria\":[\"low\",\"high\"]}}}"
+   }
+  },
+  {
+   "name": "single option distribution margin",
+   "state": "nothing failed",
+   "questions": {
+    "task_risk": {
+     "type": "score",
+     "instructions": "How risky?",
+     "criteria": [
+      "low",
+      "high"
+     ]
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"task_risk\": {\"type\": \"score\", \"score\": 0, \"probabilities\": {\"0\": 1}, \"confidence\": 1}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "task_risk": {
+      "type": "score",
+      "verdict": "0",
+      "value": 1,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "leaning": "0",
+      "probabilities": {
+       "0": 1
+      },
+      "margin": 1.0
+     }
+    },
+    "body": "{\"state\":\"nothing failed\",\"model\":\"jev-latest\",\"questions\":{\"task_risk\":{\"type\":\"score\",\"instructions\":\"How risky?\",\"criteria\":[\"low\",\"high\"]}}}"
+   }
+  },
+  {
+   "name": "confident box",
+   "state": "screenshot img-1 of the order page",
+   "questions": {
+    "region": {
+     "type": "box",
+     "instructions": "Where is the error banner?"
+    }
+   },
+   "options": {
+    "model": "jev-1.14.0"
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.14.0\", \"answers\": {\"region\": {\"type\": \"box\", \"box\": {\"top\": 0.1, \"bottom\": 0.3, \"left\": 0.2, \"right\": 0.9}, \"confidence\": 0.93}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.14.0",
+    "verdicts": {
+     "region": {
+      "type": "box",
+      "verdict": "box",
+      "value": 0.93,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "leaning": "box",
+      "box": {
+       "top": 0.1,
+       "bottom": 0.3,
+       "left": 0.2,
+       "right": 0.9
+      }
+     }
+    },
+    "body": "{\"state\":\"screenshot img-1 of the order page\",\"model\":\"jev-1.14.0\",\"questions\":{\"region\":{\"type\":\"box\",\"instructions\":\"Where is the error banner?\"}}}",
+    "headers": {
+     "typesafe-danger-zone-images": "true"
+    }
+   }
+  },
+  {
+   "name": "unconfident box",
+   "state": "screenshot img-1 of the order page",
+   "questions": {
+    "region": {
+     "type": "box",
+     "instructions": "Where is the error banner?"
+    }
+   },
+   "options": {
+    "model": "jev-1.14.0"
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.14.0\", \"answers\": {\"region\": {\"type\": \"box\", \"box\": {\"top\": 0.1, \"bottom\": 0.3, \"left\": 0.2, \"right\": 0.9}, \"confidence\": 0.5}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.14.0",
+    "verdicts": {
+     "region": {
+      "type": "box",
+      "verdict": "undecided",
+      "value": 0.5,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "reason": "below_threshold",
+      "leaning": "box",
+      "box": {
+       "top": 0.1,
+       "bottom": 0.3,
+       "left": 0.2,
+       "right": 0.9
+      }
+     }
+    },
+    "body": "{\"state\":\"screenshot img-1 of the order page\",\"model\":\"jev-1.14.0\",\"questions\":{\"region\":{\"type\":\"box\",\"instructions\":\"Where is the error banner?\"}}}",
+    "headers": {
+     "typesafe-danger-zone-images": "true"
+    }
+   }
+  },
+  {
+   "name": "box with crossed edges",
+   "state": "screenshot img-1",
+   "questions": {
+    "region": {
+     "type": "box",
+     "instructions": "Where is the error banner?"
+    }
+   },
+   "options": {
+    "model": "jev-1.14.0"
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"region\": {\"type\": \"box\", \"box\": {\"top\": 0.5, \"bottom\": 0.3, \"left\": 0.2, \"right\": 0.9}, \"confidence\": 0.99}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "region": {
+      "type": "box",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "confidence",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"screenshot img-1\",\"model\":\"jev-1.14.0\",\"questions\":{\"region\":{\"type\":\"box\",\"instructions\":\"Where is the error banner?\"}}}",
+    "headers": {
+     "typesafe-danger-zone-images": "true"
+    }
+   }
+  },
+  {
+   "name": "missing key sends nothing",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "apiKey": ""
+   },
+   "expect": {
+    "requests": 0,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "typesafe_api_key_missing"
+     }
+    }
+   }
+  },
+  {
+   "name": "status 401",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 401,
+    "headers": {},
+    "body": "{}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "http_client_error"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "status 422",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 422,
+    "headers": {},
+    "body": "{}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "http_client_error"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "status 500",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 500,
+    "headers": {},
+    "body": "{}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "http_server_error"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "status 529",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 529,
+    "headers": {},
+    "body": "{}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "http_server_error"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "status 302",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 302,
+    "headers": {},
+    "body": "{}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "array body is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "[]"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "no answers is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\"}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "not json is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "not json"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "NaN body is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "NaN"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "absent answer is undecided for that id only",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    },
+    "touches_money_path": {
+     "type": "noul",
+     "instructions": "Does it touch money?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.8,
+     "touches_money_path": 0.8
+    }
+   },
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.95}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.95,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.9
+     },
+     "touches_money_path": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "answer_missing"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"},\"touches_money_path\":{\"type\":\"noul\",\"instructions\":\"Does it touch money?\"}}}"
+   }
+  },
+  {
+   "name": "answer of the wrong type",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"choice\", \"choice\": \"yes\", \"confidence\": 0.99}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "answer_type_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul probability above one is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 1.4}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul probability below zero is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": -0.1}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul probability boolean is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": true}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "noul probability string is a schema mismatch",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.13.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": \"0.9\"}}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.13.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "undecided",
+      "value": 0,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "reason": "response_schema_mismatch"
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "usage tokens are reported",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "reply": {
+    "status": 200,
+    "headers": {},
+    "body": "{\"model\": \"jev-1.14.0\", \"answers\": {\"needs_owner\": {\"type\": \"noul\", \"noul\": 0.96}}, \"usage\": {\"input_tokens\": 278, \"output_tokens\": 20}}"
+   },
+   "expect": {
+    "requests": 1,
+    "model": "jev-1.14.0",
+    "verdicts": {
+     "needs_owner": {
+      "type": "noul",
+      "verdict": "yes",
+      "value": 0.96,
+      "valueKind": "noul-probability",
+      "threshold": 0.8,
+      "leaning": "yes",
+      "margin": 0.92
+     }
+    },
+    "body": "{\"state\":\"the worker refused to settle\",\"model\":\"jev-latest\",\"questions\":{\"needs_owner\":{\"type\":\"noul\",\"instructions\":\"Does the owner have to act?\"}}}"
+   }
+  },
+  {
+   "name": "no question",
+   "state": "the worker refused to settle",
+   "questions": {},
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "unknown type",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "guess",
+     "instructions": "?"
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "choice with one option",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "choice",
+     "instructions": "?",
+     "criteria": {
+      "only": null
+     }
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "score with one level",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "score",
+     "instructions": "?",
+     "criteria": [
+      "one"
+     ]
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "score with eleven levels",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "score",
+     "instructions": "?",
+     "criteria": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+     ]
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "box with criteria",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "box",
+     "instructions": "?",
+     "criteria": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "empty instructions",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "noul",
+     "instructions": ""
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "unknown stakes",
+   "state": "the worker refused to settle",
+   "questions": {
+    "q": {
+     "type": "noul",
+     "instructions": "?",
+     "stakes": "low"
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "threshold above one",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 1.2
+    }
+   },
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "threshold at zero",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0
+    }
+   },
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "noul threshold at the coin flip",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "thresholds": {
+     "needs_owner": 0.5
+    }
+   },
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "empty state",
+   "state": "   ",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {},
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "timeout of zero",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "timeoutMs": 0
+   },
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  },
+  {
+   "name": "timeout above the cap",
+   "state": "the worker refused to settle",
+   "questions": {
+    "needs_owner": {
+     "type": "noul",
+     "instructions": "Does the owner have to act?"
+    }
+   },
+   "options": {
+    "timeoutMs": 121000
+   },
+   "expect": {
+    "usageError": true,
+    "requests": 0
+   }
+  }
+ ]
+}

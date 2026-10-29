@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "note": "Synthetic fixtures only. raw is what an operator may paste; masked is all that may leave the machine.",
+  "text": [
+    {"name": "party id", "raw": "party sample-operator-fixture::N4mespace.fixture is ready", "masked": "party [redacted] is ready"},
+    {"name": "bearer token", "raw": "Authorization: Bearer fixture-token-value-0001", "masked": "Authorization: [redacted]"},
+    {"name": "jwt", "raw": "cookie eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaXh0dXJlIn0.c2lnbmF0dXJlLWZpeHR1cmUwMQ set", "masked": "cookie [redacted] set"},
+    {"name": "connection string with credentials", "raw": "DATABASE_URL=postgres://sample:fixture-password-0001@db.fixture.example:5432/ledger", "masked": "DATABASE_URL=[redacted]"},
+    {"name": "connection string without credentials", "raw": "reading redis://cache.fixture.example:6379/0 now", "masked": "reading [redacted] now"},
+    {"name": "e-mail address", "raw": "ping operator.fixture@example.com about it", "masked": "ping [redacted] about it"},
+    {"name": "api key shape", "raw": "key sample_ak_FIXTUREFIXTUREFIXTURE01 used", "masked": "key [redacted] used"},
+    {"name": "keyed secret", "raw": "config {\"api_key\": \"fixture-value-0001\"}", "masked": "config {\"[redacted]\"}"},
+    {"name": "internal hostnames", "raw": "calling localhost:8080 and api.internal", "masked": "calling [redacted] and [redacted]"},
+    {"name": "account id", "raw": "account acct_fixture01 paid", "masked": "account [redacted] paid"},
+    {"name": "private network address", "raw": "dialing 10.0.3.7:5432 then 192.168.1.20", "masked": "dialing [redacted] then [redacted]"},
+    {"name": "contract id", "raw": "contract_id=fixture0123456789 archived", "masked": "[redacted] archived"},
+    {"name": "command id", "raw": "retry cmd_fixture01abc later", "masked": "retry [redacted] later"},
+    {"name": "stripe-shaped key", "raw": "using sk_test_fixture0001value", "masked": "using [redacted]"},
+    {"name": "github token shape", "raw": "token ghp_FIXTUREFIXTUREFIXTURE01 leaked", "masked": "token [redacted] leaked"},
+    {"name": "url with user and password", "raw": "open https://fixture:pass0001@example.com/x", "masked": "open https://fixture:[redacted]/x"},
+    {"name": "line structure kept", "raw": "engine refused\n  reason: risk_limit_exceeded\n", "masked": "engine refused\n reason: risk_limit_exceeded"},
+    {"name": "control characters become spaces", "raw": "tick\u0000\u0007 17  ok ", "masked": "tick 17 ok"},
+    {"name": "nfkc applies", "raw": "ﬁnal ①", "masked": "final 1"},
+    {"name": "ordinary text one", "raw": "order 12 rejected: risk_limit_exceeded after 3 retries", "masked": "order 12 rejected: risk_limit_exceeded after 3 retries"},
+    {"name": "ordinary text two", "raw": "Final price: 12 primas for LAV-03.", "masked": "Final price: 12 primas for LAV-03."},
+    {"name": "ordinary text three", "raw": "Abuela: ¿me das 15 por el LAV-03? Es el último.", "masked": "Abuela: ¿me das 15 por el LAV-03? Es el último."}
+  ],
+  "state": [
+    {
+      "name": "every string inside a structured state, numbers kept",
+      "raw": {"service": "worker", "attempts": 3, "ready": false, "nothing": null, "lines": ["Bearer fixture-token-value-0001", "ready"], "nested": {"party": "sample-operator-fixture::N4mespace.fixture"}},
+      "masked": {"service": "worker", "attempts": 3, "ready": false, "nothing": null, "lines": ["[redacted]", "ready"], "nested": {"party": "[redacted]"}}
+    },
+    {
+      "name": "credential-named fields",
+      "raw": {"apiKey": {"deep": 1}, "client_secret": "x", "refreshToken": "y", "Authorization": "z", "PASSWORD": 1, "token_value": "opaque", "client_secret_id": "x", "ok": "1"},
+      "masked": {"apiKey": "[redacted]", "client_secret": "[redacted]", "refreshToken": "[redacted]", "Authorization": "[redacted]", "PASSWORD": "[redacted]", "token_value": "[redacted]", "client_secret_id": "[redacted]", "ok": "1"}
+    },
+    {
+      "name": "credential-shaped field name",
+      "raw": {"ok": "1", "sk-live-abcdefghijklmnopqrstu": "v"},
+      "masked": {"ok": "1", "[redacted]#1": "v"}
+    }
+  ]
+}
