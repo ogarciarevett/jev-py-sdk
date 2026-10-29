@@ -26,3 +26,7 @@ Validation: list actual checks and results, or explain checks not run.
 A named human must review and understand the complete change, verify its tests and claims, check security and privacy, and confirm the right to contribute all code and dependencies under the applicable licenses. AI assistance does not waive existing review, CLA/DCO, signing, coverage, or CI requirements. Follow the existing commit conventions, including Conventional Commits where required. No AI `Co-authored-by` trailer or one-line commit attribution is required; any required human credit or DCO sign-off still applies.
 
 Do not include secrets, personal data, private prompts, conversation transcripts, or hidden reasoning in the disclosure. None is required. Provide only the tool/model, scope, human accountability, and actual validation evidence.
+
+## Linked feature stacks
+
+Related or dependent feature PRs must be linked with the official `gh stack` workflow, record exact base/head relationships, and merge together through `gh stack merge`. Reviewers return **CHANGES** for unlinked related feature PRs; do not approve or merge one dependent slice alone. Independent PRs need no artificial stack. See [AGENTS.md](AGENTS.md) and [CODING_STANDARDS.md](CODING_STANDARDS.md) for the shared gate.

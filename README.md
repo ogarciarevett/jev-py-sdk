@@ -147,10 +147,12 @@ either SDK's report can read the other's logs.
 ## Development
 
 ```bash
-uv sync
-uv run pytest --cov      # offline: httpx.MockTransport only
-uv run ruff check . && uv run black --check . && uv run mypy src tests
+uv sync --locked
+uv run --locked python scripts/install_hooks.py
+uv run --locked python scripts/check.py  # Black, Ruff, mypy, then offline tests with coverage
 ```
+
+The installed pre-push hook, CI lint job and release workflow use this same non-writing gate. A failed check stops later checks and release build steps. Black 26.10.1 formats Python; Ruff 0.14.3 lints it. Python 3.10 and the 120-column convention remain unchanged.
 
 See [docs/parity.md](docs/parity.md) for what the TypeScript SDK has that this port does not,
 [PROVENANCE.md](PROVENANCE.md) for where the code came from, and
